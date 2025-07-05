@@ -1,5 +1,5 @@
 const express = require("express");
-const { fetchSources, patchSources, createSources } = require("../services/SourceService");
+const { fetchSources, patchSources, createSources } = require("../services/sourceService");
 const router = express.Router();
 
 router.get("/:email", async (req, res) => {

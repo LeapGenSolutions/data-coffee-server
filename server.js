@@ -1,9 +1,10 @@
+const { BlobServiceClient } = require('@azure/storage-blob');
 const express = require('express');
 const cors = require('cors');
 
 const app = express();
 
-const SourceRoute = require('./routes/SourceRoute');
+const sourceRoute = require('./routes/sourceRoute');
 
 
 const allowedOrigin = "*"; // set this in .env
@@ -18,11 +19,19 @@ const httpServer = require('http').createServer(app);
 
 const PORT = process.env.PORT || 8080;
 
-app.get('/', (req, res) => {
-    res.send("hello");
-})
+// Hello World API
+app.get('/api/hello', (req, res) => {
+  res.send('Hello world');
+});
 
-app.use("/source", SourceRoute);
+
+
+const connectionRoute = require('./routes/connectionRoute');
+
+
+
+app.use("/api/source", sourceRoute);
+app.use("/api/connection", connectionRoute);
 
 httpServer.listen(PORT, () =>
   console.log(`server is running on port: ${PORT}`)
