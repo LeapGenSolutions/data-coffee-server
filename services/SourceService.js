@@ -96,7 +96,6 @@ async function createSources(userID, data) {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
-  // console.log(item);
   
   try {
     const { resource: createdItem } = await container.items.create(item);
