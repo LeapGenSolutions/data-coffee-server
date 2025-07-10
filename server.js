@@ -4,7 +4,7 @@ const cors = require('cors');
 
 const app = express();
 
-const sourceRoute = require('./routes/sourceRoute');
+const sourceRoute = require('./routes/SourceRoute');
 
 
 const allowedOrigin = "*"; // set this in .env
