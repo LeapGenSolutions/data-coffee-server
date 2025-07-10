@@ -1,23 +1,35 @@
 const express = require("express");
-const { fetchSources, patchSources, createSources } = require("../services/sourceService");
+const { fetchSource, deleteSources, fetchSourcesByUserId, patchSources, createSources } = require("../services/sourceService");
+const e = require("express");
 const router = express.Router();
 
 router.get("/:email", async (req, res) => {
   try {
     const { email } = req.params;
-    const items = await fetchSources(email.split(","), req.body.sourceName, req.body.partitionKey);
+    const items = await fetchSourcesByUserId(email);
+    console.log(`Fetching sources for user(s): ${email}`);
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.patch("/:email", async (req, res) => {
+router.get("/:email/:id", async (req, res) => {
   try {
-    const { email } = req.params;
-    const prompt = req.body.prompt || null;
-    const location = req.body.location || null;
-    const items = await patchSources(email.split(","), req.body.sourceName, req.body.partitionKey, prompt, location);
+    const { email, id } = req.params;
+    const items = await fetchSource(id, email);
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: err.message || "Internal server error" });
+  }
+});
+
+
+router.patch("/:email/:id", async (req, res) => {
+  try {
+    const { email, id } = req.params;
+    const data = req.body.data || null;
+    const items = await patchSources(id, email, data);
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
@@ -27,8 +39,18 @@ router.patch("/:email", async (req, res) => {
 router.post("/:email", async (req, res) => {
   try {
     const { email } = req.params;
-    const prompt = req.body.prompt || null;
-    const items = await createSources(email.split(","), req.body.sourceName, req.body.sourceType, prompt, req.body.location);
+    const data = req.body.data || null;
+    const items = await createSources(email, data);
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/:email/:id", async (req, res) => {
+  try {
+    const { email, id } = req.params;
+    const items = await deleteSources(id, email);
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
