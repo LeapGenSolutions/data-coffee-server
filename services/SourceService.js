@@ -79,14 +79,13 @@ async function patchSources(id, partitionIdentifier, newData) {
 async function createSources(userID, data) {
   const database = client.database(process.env.COSMOS_SOURCE);
   const container = database.container("data-coffee-source-configurations");
-
+  
   const item = {
     id: `source-${data.id}-${uuidv4()}`,
     partitionIdentifier: userID,
     user_id: userID,
     configuration : {
-      ...data.configuration,
-      step : undefined
+      ...data.configuration
     },
     data_selection_mode: data.dataSelectionMode || "all",
     selected_tables: data.selectedTables || [],
@@ -97,7 +96,7 @@ async function createSources(userID, data) {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
-  console.log(item);
+  // console.log(item);
   
   try {
     const { resource: createdItem } = await container.items.create(item);

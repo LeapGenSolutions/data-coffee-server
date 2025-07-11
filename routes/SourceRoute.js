@@ -39,7 +39,7 @@ router.patch("/:email/:id", async (req, res) => {
 router.post("/:email", async (req, res) => {
   try {
     const { email } = req.params;
-    const data = req.body.data || null;
+    const data = req.body || null;
     const items = await createSources(email, data);
     res.json(items);
   } catch (err) {
