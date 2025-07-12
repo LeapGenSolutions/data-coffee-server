@@ -55,6 +55,8 @@ async function patchSources(id, partitionIdentifier, newData) {
       id: item.id,
       partitionIdentifier: item.partitionIdentifier || partitionIdentifier,
       user_id: item.user_id || partitionIdentifier,
+      workspaceId: newData?.workspaceId || item.workspaceId,
+      workspaceName: newData?.workspaceName || item.workspaceName,
       configuration : newData?.configuration ? {
         ...newData.configuration,
         step : undefined
@@ -84,6 +86,8 @@ async function createSources(userID, data) {
     id: `source-${Date.now()}-${uuidv4()}`,
     partitionIdentifier: userID,
     user_id: userID,
+    workspaceId: data.workspaceId,
+    workspaceName: data.workspaceName,
     configuration : {
       ...data.configuration
     },
