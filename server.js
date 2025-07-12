@@ -26,11 +26,15 @@ app.get("/api/hello", (req, res) => {
   res.send("Hello world");
 });
 
+
 const connectionRoute = require("./routes/connectionRoute");
+const workspaceRoute = require("./routes/workspaceRoute");
+
 
 app.use("/api/source", sourceRoute);
 app.use("/api/connection", connectionRoute);
 app.use("/api/sourcetype", sourceTypeRoute);
+app.use("/api/workspaces", workspaceRoute);
 
 httpServer.listen(PORT, () =>
   console.log(`server is running on port: ${PORT}`)
