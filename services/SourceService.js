@@ -81,7 +81,7 @@ async function createSources(userID, data) {
   const container = database.container("data-coffee-source-configurations");
   
   const item = {
-    id: `source-${data.id}-${uuidv4()}`,
+    id: `source-${Date.now()}-${uuidv4()}`,
     partitionIdentifier: userID,
     user_id: userID,
     configuration : {
