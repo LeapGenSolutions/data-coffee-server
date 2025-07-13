@@ -80,29 +80,27 @@ async function updatePipeline(id, userID, newData) {
 async function createPipeline(userId, data){
     const database = client.database(process.env.COSMOS_PIPELINE);
     const container = database.container("data-coffee-pipeline-config");
-
+    
     const item = {
         id: `pipeline-${Date.now()}-${uuidv4()}`,
         user_id: userId,
         name: data.name,
         source: data.source,
-        destination_type: data.destinationType,
         destination: data.destination,
         technique: data.technique,
         workspaceName: data.workspaceName,
-        workspaceId: data.workspaceId,
+        workspaceId: data.workspaceID,
         processing_agent: data.processingAgent,
         schedule: data.schedule,
         notifications: data.notifications,
-        auto_close: data.autoClose,
         enable_surround_AI: data.enableSurroundAI,
         status: data.status || "new",
         last_updated: new Date().toISOString(),
         created_at: new Date().toISOString()
     };
-
+        
     try {
-        await container.items.create(item);
+        await container.items.upsert(item);
         return item;
     } catch (error) {
         console.error("Create pipeline error:", error.message);

@@ -43,7 +43,7 @@ router.patch("/:email/:id" , async (req, res) => {
 router.post("/:email" , async (req, res) => {
     try {
         const { email } = req.params;
-        const data = req.body.data || null;
+        const data = req.body || null;
         const item = await createPipeline(email, data);
         res.json(item);
     }catch (err) {

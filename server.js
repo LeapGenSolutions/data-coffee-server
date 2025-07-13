@@ -8,7 +8,7 @@ const sourceRoute = require("./routes/SourceRoute");
 const sourceTypeRoute = require("./routes/SourceTypeRoute");
 const pipelineRoute = require("./routes/pipelineRoute");
 
-const allowedOrigin = "*"; // set this in .env
+const allowedOrigin = "*";
 app.use(express.json());
 app.use(
   cors({
