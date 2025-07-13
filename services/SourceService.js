@@ -6,14 +6,17 @@ const endpoint = process.env.COSMOS_ENDPOINT;
 const key = process.env.COSMOS_KEY;
 const client = new CosmosClient({ endpoint, key });
 
-async function fetchSourcesByUserId(userID) {
+async function fetchSourcesByUserId(userID, workspaceID) {
   const database = client.database(process.env.COSMOS_SOURCE);
   const container = database.container("data-coffee-source-configurations");
   
   try {
     const querySpec = {
-      query: "SELECT * FROM c WHERE c.user_id = @userID",
-      parameters: [{ name: "@userID", value: userID }]
+      query: "SELECT * FROM c WHERE c.user_id = @userID and c.workspaceId = @workspaceId",
+      parameters: [
+        { name: "@userID", value: userID },
+        { name: "@workspaceId", value: workspaceID }
+      ]
     };
     
     const { resources } = await container.items.query(querySpec).fetchAll();

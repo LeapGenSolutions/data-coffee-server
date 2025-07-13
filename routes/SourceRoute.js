@@ -3,11 +3,13 @@ const { fetchSource, deleteSources, fetchSourcesByUserId, patchSources, createSo
 const e = require("express");
 const router = express.Router();
 
-router.get("/:email", async (req, res) => {
+router.get("/:email/:workspaceID", async (req, res) => {
   try {
-    const { email } = req.params;
-    const items = await fetchSourcesByUserId(email);
-    console.log(`Fetching sources for user(s): ${email}`);
+    const { email, workspaceID } = req.params;
+    if (!workspaceID) {
+      return res.status(400).json({ error: "workspaceID is mandatory" });
+    }
+    const items = await fetchSourcesByUserId(email, workspaceID);
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
