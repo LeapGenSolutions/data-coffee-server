@@ -7,7 +7,7 @@ const key = process.env.COSMOS_KEY;
 const client = new CosmosClient({ endpoint, key });
 
 const database = client.database(process.env.COSMOS_SOURCE);
-const container = database.container("data-coffee-types");
+const container = database.container("data-coffee-source-types");
 
 async function fetchSourceTypesBySourceKey(sourceKey) {
   const querySpec = {
@@ -29,6 +29,20 @@ async function fetchSourceType(id, sourceKey) {
     const { resource } = await container.item(id, sourceKey).read();
     if (!resource) throw new Error("Item not found");
     return resource;
+  } catch (error) {
+    console.error("Fetch error:", error.message);
+    throw new Error("Failed to fetch source type");
+  }
+}
+
+async function fetchSourcesTypes() {
+  const querySpec = {
+    query: "SELECT * FROM c",
+  };
+
+  try {
+    const { resources } = await container.items.query(querySpec).fetchAll();
+    return resources;
   } catch (error) {
     console.error("Fetch error:", error.message);
     throw new Error("Failed to fetch source type");
@@ -64,6 +78,7 @@ async function deleteSourceType(id, sourceKey) {
 module.exports = {
   fetchSourceTypesBySourceKey,
   fetchSourceType,
+  fetchSourcesTypes,
   createSourceType,
   deleteSourceType,
 };

@@ -4,9 +4,29 @@ const {
   fetchSourceType,
   createSourceType,
   deleteSourceType,
+  fetchSourcesTypes,
 } = require("../services/sourceTypeService");
 
 const router = express.Router();
+
+router.get("/", async (req, res) => {
+  try {
+    const item = await fetchSourcesTypes();
+    res.json(item);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/", async (req, res) => {
+  try {
+    const data = req.body;
+    const item = await createSourceType(data);
+    res.json(item);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 router.get("/:sourceKey", async (req, res) => {
   try {
@@ -28,15 +48,6 @@ router.get("/:sourceKey/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  try {
-    const data = req.body;
-    const item = await createSourceType(data);
-    res.json(item);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 router.delete("/:sourceKey/:id", async (req, res) => {
   try {

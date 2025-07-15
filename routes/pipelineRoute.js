@@ -32,7 +32,7 @@ router.get("/:email/:id" , async (req, res) => {
 router.patch("/:email/:id" , async (req, res) => {
     try {
         const { email, id } = req.params;
-        const data = req.body.data || null;
+        const data = req.body || null;
         const item = await updatePipeline(id, email, data);
         res.json(item);
     }catch (err) {
