@@ -42,6 +42,28 @@ async function fetchPipelineById(id, userID) {
     }
 }
 
+async function fetchPipelineByWorkspaceId(userID, workspaceId) {
+    const database = client.database(process.env.COSMOS_PIPELINE);
+    const container = database.container("data-coffee-pipeline-config");
+    try{
+        const query = {
+            query: "Select * from c where c.workspaceId = @workspaceId and c.user_id = @userID",
+            parameters : [
+                {name : "@workspaceId", value : workspaceId},
+                {name : "@UserID", value : userID}
+            ]
+        }
+        const {resource: items} = await container.items.query(query).fetchAll();
+        if(!items || items.length === 0) {
+            throw new Error("No pipelines found for this workspace");
+        }
+        return items;
+    }catch (err) {
+        console.error("Fetch pipeline by workspace ID error:", err.message);
+        throw new Error("Failed to fetch pipelines for workspace");
+    }
+}
+
 async function updatePipeline(id, userID, newData) {
     const databse = client.database(process.env.COSMOS_PIPELINE);
     const container = databse.container("data-coffee-pipeline-config");
@@ -149,6 +171,7 @@ async function deletePipeline(id, userId){
 module.exports = {
     fetchAllPipelineByUserId,
     fetchPipelineById,
+    fetchPipelineByWorkspaceId,
     updatePipeline,
     createPipeline,
     clonePipeline,

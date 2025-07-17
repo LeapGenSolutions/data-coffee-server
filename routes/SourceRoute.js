@@ -1,5 +1,5 @@
 const express = require("express");
-const { fetchSource, deleteSources, fetchSourcesByUserId, patchSources, createSources } = require("../services/sourceService");
+const { fetchSource, deleteSources, fetchSourcesByUserId, patchSources, createSources } = require("../services/SourceService");
 const e = require("express");
 const router = express.Router();
 
