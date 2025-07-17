@@ -6,7 +6,8 @@ const {
     updatePipeline,
     createPipeline,
     clonePipeline,
-    deletePipeline
+    deletePipeline,
+    fetchPipelineByWorkspaceId
 } = require('../services/pipelineService');
 
 router.get("/:email" , async (req, res) => {
@@ -19,6 +20,16 @@ router.get("/:email" , async (req, res) => {
     }
 });
 
+router.get("/:email/workspace/:workspaceId", async (req, res) => {
+    try {
+        const { email, workspaceId } = req.params;
+        const items = await fetchPipelineByWorkspaceId(email, workspaceId);
+        res.json(items);
+    }catch (err) {
+        res.status(500).json({ error: "Failed to fetch pipelines for workspace" });
+    }
+})
+
 router.get("/:email/:id" , async (req, res) => {
     try {
         const { email, id } = req.params;
@@ -28,6 +39,8 @@ router.get("/:email/:id" , async (req, res) => {
         res.status(500).json({ error: "Failed to fetch pipeline data" });
     }
 });
+
+
 
 router.patch("/:email/:id" , async (req, res) => {
     try {

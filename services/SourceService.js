@@ -9,16 +9,37 @@ const client = new CosmosClient({ endpoint, key });
 async function fetchSourcesByUserId(userID, workspaceID) {
   const database = client.database(process.env.COSMOS_SOURCE);
   const container = database.container("data-coffee-source-configurations");
-  
+
   try {
     const querySpec = {
-      query: "SELECT * FROM c WHERE c.user_id = @userID and c.workspaceId = @workspaceId",
+      query: `SELECT 
+                c.id,
+                c.configuration.sourceName AS sourceName,
+                c.partitionIdentifier,
+                c.user_id,
+                c.workspaceId,
+                c.workspaceName,
+                c.configuration,
+                c.data_selection_mode,
+                c.selected_tables,
+                c.selected_columns,
+                c.custom_query,
+                c.status,
+                c.last_sync,
+                c.created_at,
+                c.updated_at,
+                c._rid,
+                c._self,
+                c._etag,
+                c._attachments,
+                c._ts
+            FROM c WHERE c.user_id = @userID and c.workspaceId = @workspaceId`,
       parameters: [
         { name: "@userID", value: userID },
         { name: "@workspaceId", value: workspaceID }
       ]
     };
-    
+
     const { resources } = await container.items.query(querySpec).fetchAll();
     return resources;
   } catch (error) {
@@ -47,22 +68,22 @@ async function fetchSource(id, partitionIdentifier) {
 async function patchSources(id, partitionIdentifier, newData) {
   const database = client.database(process.env.COSMOS_SOURCE);
   const container = database.container("data-coffee-source-configurations");
-  try { 
-    const { resource : item } = await container.item(id, partitionIdentifier).read();
+  try {
+    const { resource: item } = await container.item(id, partitionIdentifier).read();
 
     if (!item) {
       throw new Error("Item not found");
     }
-    
+
     const updatedItem = {
       id: item.id,
       partitionIdentifier: item.partitionIdentifier || partitionIdentifier,
       user_id: item.user_id || partitionIdentifier,
       workspaceId: newData?.workspaceId || item.workspaceId,
       workspaceName: newData?.workspaceName || item.workspaceName,
-      configuration : newData?.configuration ? {
+      configuration: newData?.configuration ? {
         ...newData.configuration,
-        step : undefined
+        step: undefined
       } : item.configuration,
       data_selection_mode: newData?.dataSelectionMode || item.data_selection_mode,
       selected_tables: newData?.selectedTables || item.selected_tables,
@@ -73,7 +94,7 @@ async function patchSources(id, partitionIdentifier, newData) {
       created_at: item.created_at,
       updated_at: new Date().toISOString(),
     };
-    
+
     await container.item(item.id, partitionIdentifier).replace(updatedItem);
   } catch (err) {
     console.error(err);
@@ -84,14 +105,14 @@ async function patchSources(id, partitionIdentifier, newData) {
 async function createSources(userID, data) {
   const database = client.database(process.env.COSMOS_SOURCE);
   const container = database.container("data-coffee-source-configurations");
-  
+
   const item = {
     id: `source-${Date.now()}-${uuidv4()}`,
     partitionIdentifier: userID,
     user_id: userID,
     workspaceId: data.workspaceId,
     workspaceName: data.workspaceName,
-    configuration : {
+    configuration: {
       ...data.configuration
     },
     data_selection_mode: data.dataSelectionMode || "all",
@@ -103,7 +124,7 @@ async function createSources(userID, data) {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
-  
+
   try {
     const { resource: createdItem } = await container.items.create(item);
     return createdItem;
@@ -126,9 +147,9 @@ async function deleteSources(id, userID) {
 }
 
 module.exports = {
-    fetchSourcesByUserId,
-    fetchSource,
-    patchSources,
-    createSources,
-    deleteSources
+  fetchSourcesByUserId,
+  fetchSource,
+  patchSources,
+  createSources,
+  deleteSources
 };
