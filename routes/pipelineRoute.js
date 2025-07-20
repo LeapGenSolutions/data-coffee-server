@@ -56,8 +56,10 @@ router.patch("/:email/:id" , async (req, res) => {
 
 router.post("/run" , async (req, res) => {
     try {
-        const { email, pipeline_id } = req.body;
-        const item = await runPipelineJob(pipeline_id, email);
+        console.log(req.body);
+        
+        const { email, pipeline_id, pipeline_name } = req.body;
+        const item = await runPipelineJob(pipeline_id, pipeline_name, email);
         res.json(item);
     }catch (err) {
         res.status(500).json({ error: "Failed to run pipeline job" });

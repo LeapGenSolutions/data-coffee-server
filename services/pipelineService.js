@@ -12,7 +12,7 @@ async function fetchAllPipelineByUserId(userID) {
     const datebase = client.database(process.env.COSMOS_PIPELINE);
     const container = datebase.container("data-coffee-pipeline-config");
 
-    try{
+    try {
         const querySpec = {
             query: "SELECT * FROM c WHERE c.user_id = @userID",
             parameters: [{ name: "@userID", value: userID }]
@@ -20,7 +20,7 @@ async function fetchAllPipelineByUserId(userID) {
 
         const { resources } = await container.items.query(querySpec).fetchAll();
         return resources;
-    }catch (error) {
+    } catch (error) {
         throw new Error("Failed to fetch pipelines for user");
     }
 }
@@ -47,7 +47,7 @@ async function fetchPipelineByWorkspaceId(userID, workspaceId) {
     const datebase = client.database(process.env.COSMOS_PIPELINE);
     const container = datebase.container("data-coffee-pipeline-config");
 
-    try{
+    try {
         const querySpec = {
             query: "Select * FROM c WHERE c.user_id = @userID and c.workspaceId = @workspaceId",
             parameters: [
@@ -58,14 +58,14 @@ async function fetchPipelineByWorkspaceId(userID, workspaceId) {
 
         const { resources: items } = await container.items.query(querySpec).fetchAll();
 
-        if(!items) {
+        if (!items) {
             throw new Error("No pipelines found for this workspace");
         }
         if (items.length === 0) {
             return [];
         }
         return items;
-    }catch (err) {
+    } catch (err) {
         console.error("Fetch pipeline by workspace ID error:", err.message);
         throw new Error("Failed to fetch pipelines for workspace");
     }
@@ -74,9 +74,9 @@ async function fetchPipelineByWorkspaceId(userID, workspaceId) {
 async function updatePipeline(id, userID, newData) {
     const databse = client.database(process.env.COSMOS_PIPELINE);
     const container = databse.container("data-coffee-pipeline-config");
-    try{
+    try {
         const { resource: item } = await container.item(id, userID).read();
-        if(!item) {
+        if (!item) {
             throw new Error("Item not found");
         }
         const updatedItem = {
@@ -89,7 +89,7 @@ async function updatePipeline(id, userID, newData) {
             destination_type: newData?.destinationType || item.destination_type,
             destination: newData?.destination || item.destination,
             techinque: newData?.technique || item.technique,
-            processing_agent: item.processingAgent, 
+            processing_agent: item.processingAgent,
             schedule: newData?.schedule || item.schedule,
             notifications: newData?.notifications || item.notifications,
             auto_close: newData?.autoClose || item.auto_close,
@@ -100,16 +100,16 @@ async function updatePipeline(id, userID, newData) {
         }
         await container.item(id, userID).replace(updatedItem);
         return updatedItem;
-    }catch (error) {
+    } catch (error) {
         console.error("Update pipeline error:", error.message);
         throw new Error("Failed to update pipeline");
     }
 }
 
-async function createPipeline(userId, data){
+async function createPipeline(userId, data) {
     const database = client.database(process.env.COSMOS_PIPELINE);
     const container = database.container("data-coffee-pipeline-config");
-    
+
     const item = {
         id: `pipeline-${Date.now()}-${uuidv4()}`,
         user_id: userId,
@@ -127,7 +127,7 @@ async function createPipeline(userId, data){
         last_updated: new Date().toISOString(),
         created_at: new Date().toISOString()
     };
-        
+
     try {
         await container.items.upsert(item);
         return item;
@@ -137,7 +137,7 @@ async function createPipeline(userId, data){
     }
 }
 
-async function clonePipeline(userId, id){
+async function clonePipeline(userId, id) {
     const database = client.database(process.env.COSMOS_PIPELINE);
     const container = database.container("data-coffee-pipeline-config");
 
@@ -162,20 +162,24 @@ async function clonePipeline(userId, id){
     }
 }
 
-async function deletePipeline(id, userId){
+async function deletePipeline(id, userId) {
     const database = client.database(process.env.COSMOS_PIPELINE);
     const container = database.container("data-coffee-pipeline-config");
-    
-    try{
+
+    try {
         await container.item(id, userId).delete();
         return { message: "Pipeline deleted successfully" };
-    }catch (err) {
+    } catch (err) {
         console.error("Delete pipeline error:", err.message);
         throw new Error("Failed to delete pipeline");
     }
 }
 
-async function runPipelineJob(pipeline_id, user_id) {
+async function runPipelineJob(pipeline_id, pipeline_name, user_id) {
+    console.log("Running pipeline job with ID:", pipeline_id, "and name:", pipeline_name);
+    console.log("User ID:", user_id);
+    
+    
     const DATABRICKS_URL = process.env.DATABRICKS_URL;
     const DATABRICKS_TOKEN = process.env.DATABRICKS_AUTH_TOKEN;
     const DATABRICKS_JOB_ID = process.env.DATABRICKS_JOB_ID;
@@ -187,7 +191,7 @@ async function runPipelineJob(pipeline_id, user_id) {
         job_id: DATABRICKS_JOB_ID,
         notebook_params: {
             pipeline_id,
-            user_id
+            "pipeline_partition_key": user_id,
         }
     };
     const headers = {
@@ -195,7 +199,30 @@ async function runPipelineJob(pipeline_id, user_id) {
         'Content-Type': 'application/json'
     };
     const response = await axios.post(url, body, { headers });
-    return response.data;
+    const database = client.database(process.env.COSMOS_PIPELINE);
+    const container = database.container("data-coffee-pipeline-history");
+    const run_id = response.data["run_id"];
+    const item = {
+        id: run_id.toString(),
+        user_id,
+        "pipeline_id": pipeline_id,
+        "pipeline_name": pipeline_name,
+        "pipeline_start_time": new Date().toISOString(),
+        "pipeline_end_time": null,
+        "pipeline_status": "running",
+        "pipeline_message": null,
+        "pipeline_logs": "",
+        "status": "running",
+        created_at: new Date().toISOString()
+    };
+    
+    try {
+        await container.items.upsert(item);
+        return item;
+    } catch (error) {
+        console.error("Create pipeline error:", error.message);
+        throw new Error("Failed to create pipeline");
+    }
 }
 
 module.exports = {
