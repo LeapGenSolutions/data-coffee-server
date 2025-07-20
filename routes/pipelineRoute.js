@@ -7,7 +7,8 @@ const {
     createPipeline,
     clonePipeline,
     deletePipeline,
-    fetchPipelineByWorkspaceId
+    fetchPipelineByWorkspaceId,
+    runPipelineJob
 } = require('../services/pipelineService');
 
 router.get("/:email" , async (req, res) => {
@@ -50,6 +51,16 @@ router.patch("/:email/:id" , async (req, res) => {
         res.json(item);
     }catch (err) {
         res.status(500).json({ error: "Failed to update pipeline data" });
+    }
+});
+
+router.post("/run" , async (req, res) => {
+    try {
+        const { email, pipeline_id } = req.body;
+        const item = await runPipelineJob(pipeline_id, email);
+        res.json(item);
+    }catch (err) {
+        res.status(500).json({ error: "Failed to run pipeline job" });
     }
 });
 

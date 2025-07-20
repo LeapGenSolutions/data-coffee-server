@@ -1,6 +1,7 @@
 const { CosmosClient } = require("@azure/cosmos");
 const e = require("express");
 const { v4: uuidv4 } = require('uuid');
+const axios = require('axios');
 require("dotenv").config();
 
 const endpoint = process.env.COSMOS_ENDPOINT;
@@ -174,6 +175,29 @@ async function deletePipeline(id, userId){
     }
 }
 
+async function runPipelineJob(pipeline_id, user_id) {
+    const DATABRICKS_URL = process.env.DATABRICKS_URL;
+    const DATABRICKS_TOKEN = process.env.DATABRICKS_AUTH_TOKEN;
+    const DATABRICKS_JOB_ID = process.env.DATABRICKS_JOB_ID;
+    if (!DATABRICKS_URL || !DATABRICKS_TOKEN) {
+        throw new Error("DATABRICKS_URL and DATABRICKS_TOKEN must be set in environment variables");
+    }
+    const url = `${DATABRICKS_URL}/api/2.2/jobs/run-now`;
+    const body = {
+        job_id: DATABRICKS_JOB_ID,
+        notebook_params: {
+            pipeline_id,
+            user_id
+        }
+    };
+    const headers = {
+        'Authorization': `Bearer ${DATABRICKS_TOKEN}`,
+        'Content-Type': 'application/json'
+    };
+    const response = await axios.post(url, body, { headers });
+    return response.data;
+}
+
 module.exports = {
     fetchAllPipelineByUserId,
     fetchPipelineById,
@@ -181,5 +205,6 @@ module.exports = {
     updatePipeline,
     createPipeline,
     clonePipeline,
-    deletePipeline
+    deletePipeline,
+    runPipelineJob
 }
