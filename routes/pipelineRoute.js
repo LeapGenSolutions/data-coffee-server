@@ -8,7 +8,8 @@ const {
     clonePipeline,
     deletePipeline,
     fetchPipelineByWorkspaceId,
-    runPipelineJob
+    runPipelineJob,
+    fetchAllPipelineHistoryByUserId
 } = require('../services/pipelineService');
 
 router.get("/run-history/:email", async (req, res) => {
@@ -17,6 +18,7 @@ router.get("/run-history/:email", async (req, res) => {
         const items = await fetchAllPipelineHistoryByUserId(email);
         res.json(items);
     } catch (err) {
+        console.log("Error fetching pipeline history:", err.message);
         res.status(500).json({ error: "Failed to fetch pipeline history data" });
     }
 });
