@@ -8,7 +8,8 @@ const {
     clonePipeline,
     deletePipeline,
     fetchPipelineByWorkspaceId,
-    runPipelineJob
+    runPipelineJob,
+    fetchAllPipelineHistoryByUserId
 } = require('../services/pipelineService');
 
 router.get("/run-history/:email", async (req, res) => {
