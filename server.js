@@ -7,6 +7,7 @@ const app = express();
 const sourceRoute = require("./routes/SourceRoute");
 const sourceTypeRoute = require("./routes/SourceTypeRoute");
 const pipelineRoute = require("./routes/pipelineRoute");
+const pipelineHistory = require("./routes/pipelineHistoryRoute");
 
 const allowedOrigin = "*";
 app.use(express.json());
@@ -37,6 +38,7 @@ app.use("/api/connection", connectionRoute);
 app.use("/api/sourcetype", sourceTypeRoute);
 app.use("/api/workspaces", workspaceRoute);
 app.use("/api/pipeline", pipelineRoute);
+app.use("/api/pipelinehistory", pipelineHistory);
 
 httpServer.listen(PORT, () =>
   console.log(`server is running on port: ${PORT}`)

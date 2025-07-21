@@ -10,7 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@azure/cosmos": "^4.4.1",
+    "@azure/cosmos": "^4.5.0",
     "@azure/service-bus": "^7.9.5",
     "@azure/storage-blob": "^12.26.0",
     "@reduxjs/toolkit": "^2.8.2",
