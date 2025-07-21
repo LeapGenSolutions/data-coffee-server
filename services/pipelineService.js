@@ -225,6 +225,22 @@ async function runPipelineJob(pipeline_id, pipeline_name, user_id) {
     }
 }
 
+async function fetchAllPipelineHistoryByUserId(userID) {
+    const database = client.database(process.env.COSMOS_PIPELINE);
+    const container = database.container("data-coffee-pipeline-history");
+    try {
+        const querySpec = {
+            query: "SELECT * FROM c WHERE c.user_id = @userID",
+            parameters: [{ name: "@userID", value: userID }]
+        };
+
+        const { resources } = await container.items.query(querySpec).fetchAll();
+        return resources;
+    } catch (error) {
+        throw new Error("Failed to fetch pipeline history for user");
+    }
+}
+
 module.exports = {
     fetchAllPipelineByUserId,
     fetchPipelineById,
@@ -233,5 +249,6 @@ module.exports = {
     createPipeline,
     clonePipeline,
     deletePipeline,
-    runPipelineJob
+    runPipelineJob,
+    fetchAllPipelineHistoryByUserId
 }
