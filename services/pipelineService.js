@@ -96,7 +96,8 @@ async function updatePipeline(id, userID, newData) {
             enable_surround_AI: newData?.enableSurroundAI || item.enable_surround_AI,
             status: newData?.status || item.status,
             last_updated: new Date().toISOString(),
-            created_at: item.created_at
+            created_at: item.created_at,
+            ...newData
         }
         await container.item(id, userID).replace(updatedItem);
         return updatedItem;
@@ -225,6 +226,22 @@ async function runPipelineJob(pipeline_id, pipeline_name, user_id) {
     }
 }
 
+async function fetchAllPipelineHistoryByUserId(userID) {
+    const database = client.database(process.env.COSMOS_PIPELINE);
+    const container = database.container("data-coffee-pipeline-history");
+    try {
+        const querySpec = {
+            query: "SELECT * FROM c WHERE c.user_id = @userID",
+            parameters: [{ name: "@userID", value: userID }]
+        };
+
+        const { resources } = await container.items.query(querySpec).fetchAll();
+        return resources;
+    } catch (error) {
+        throw new Error("Failed to fetch pipeline history for user");
+    }
+}
+
 module.exports = {
     fetchAllPipelineByUserId,
     fetchPipelineById,
@@ -233,5 +250,6 @@ module.exports = {
     createPipeline,
     clonePipeline,
     deletePipeline,
-    runPipelineJob
+    runPipelineJob,
+    fetchAllPipelineHistoryByUserId
 }

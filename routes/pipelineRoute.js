@@ -11,6 +11,16 @@ const {
     runPipelineJob
 } = require('../services/pipelineService');
 
+router.get("/run-history/:email", async (req, res) => {
+    try {
+        const { email } = req.params;
+        const items = await fetchAllPipelineHistoryByUserId(email);
+        res.json(items);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch pipeline history data" });
+    }
+});
+
 router.get("/:email" , async (req, res) => {
     try{
         const { email } = req.params;
