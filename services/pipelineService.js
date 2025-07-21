@@ -96,7 +96,8 @@ async function updatePipeline(id, userID, newData) {
             enable_surround_AI: newData?.enableSurroundAI || item.enable_surround_AI,
             status: newData?.status || item.status,
             last_updated: new Date().toISOString(),
-            created_at: item.created_at
+            created_at: item.created_at,
+            ...newData
         }
         await container.item(id, userID).replace(updatedItem);
         return updatedItem;
