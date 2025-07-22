@@ -88,7 +88,9 @@ async function updatePipeline(id, userID, newData) {
             workspaceId: newData?.workspaceId || item.workspaceId,
             destination_type: newData?.destinationType || item.destination_type,
             destination: newData?.destination || item.destination,
-            techinque: newData?.technique || item.technique,
+            sourceDatabaseId: newData?.sourceDatabaseId || item.sourceDatabaseId,
+            destinationDatabaseId: newData?.destinationDatabaseId || item.destinationDatabaseId,
+            technique: newData?.technique || item.technique,
             processing_agent: item.processingAgent,
             schedule: newData?.schedule || item.schedule,
             notifications: newData?.notifications || item.notifications,
@@ -116,13 +118,16 @@ async function createPipeline(userId, data) {
         user_id: userId,
         name: data.name,
         source: data.source,
+        sourceDatabaseId: data.sourceDatabaseId,
         destination: data.destination,
+        destinationDatabaseId: data.destinationDatabaseId,
         technique: data.technique,
         workspaceName: data.workspaceName,
         workspaceId: data.workspaceID,
         processing_agent: data.processingAgent,
         schedule: data.schedule,
         notifications: data.notifications,
+        customPrompt: data.customPrompt,
         enable_surround_AI: data.enableSurroundAI,
         status: data.status || "new",
         last_updated: new Date().toISOString(),
@@ -200,9 +205,11 @@ async function runPipelineJob(pipeline_id, pipeline_name, user_id) {
         'Content-Type': 'application/json'
     };
     const response = await axios.post(url, body, { headers });
+    
     const database = client.database(process.env.COSMOS_PIPELINE);
     const container = database.container("data-coffee-pipeline-history");
     const run_id = response.data["run_id"];
+    console.log("Pipeline run ID:", run_id);
     const item = {
         id: run_id.toString(),
         user_id,
@@ -216,13 +223,14 @@ async function runPipelineJob(pipeline_id, pipeline_name, user_id) {
         "status": "running",
         created_at: new Date().toISOString()
     };
-    
+    console.log("Pipeline History item to be created:", item);
+
     try {
         await container.items.upsert(item);
         return item;
     } catch (error) {
-        console.error("Create pipeline error:", error.message);
-        throw new Error("Failed to create pipeline");
+        console.error("Create pipeline History error:", error.message);
+        throw new Error("Failed to create pipeline History");
     }
 }
 
