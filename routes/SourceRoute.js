@@ -3,7 +3,7 @@ const { fetchSource, deleteSources, fetchSourcesByUserId, patchSources, createSo
 const e = require("express");
 const router = express.Router();
 
-router.get("/:email/:workspaceID", async (req, res) => {
+router.get("/:email/workspace/:workspaceID", async (req, res) => {
   try {
     const { email, workspaceID } = req.params;
     if (!workspaceID) {
@@ -16,7 +16,7 @@ router.get("/:email/:workspaceID", async (req, res) => {
   }
 });
 
-router.get("/:email/:id", async (req, res) => {
+router.get("/:email/source/:id", async (req, res) => {
   try {
     const { email, id } = req.params;
     const items = await fetchSource(id, email);
