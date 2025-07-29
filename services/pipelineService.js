@@ -43,6 +43,23 @@ async function fetchPipelineById(id, userID) {
     }
 }
 
+async function fetchPromptHistoryById(pipeline_id) {
+    const database = client.database(process.env.COSMOS_FEEDBACK);
+    const container = database.container("feedback-prompt");
+    try {
+        const querySpec = {
+            query: "SELECT * FROM c WHERE c.pipeline_id = @pipeline_id",
+            parameters: [{ name: "@pipeline_id", value: pipeline_id }]
+        };
+
+        const { resources } = await container.items.query(querySpec).fetchAll();
+        return resources;
+    } catch (error) {
+        console.error("Fetch prompt history error:", error.message);
+        throw new Error("Failed to fetch prompt history");
+    }
+}
+
 async function fetchPipelineByWorkspaceId(userID, workspaceId) {
     const datebase = client.database(process.env.COSMOS_PIPELINE);
     const container = datebase.container("data-coffee-pipeline-config");
@@ -270,5 +287,6 @@ module.exports = {
     clonePipeline,
     deletePipeline,
     runPipelineJob,
-    fetchAllPipelineHistoryByUserId
+    fetchAllPipelineHistoryByUserId,
+    fetchPromptHistoryById
 }
