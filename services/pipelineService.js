@@ -181,9 +181,33 @@ async function clonePipeline(userId, id) {
             throw new Error("Item not found");
         }
 
+        const originalName = item.name || "Pipeline";
+
+        const query = {
+            query: "SELECT c.name FROM c WHERE c.user_id = @userId",
+            parameters: [{ name: "@userId", value: userId }],
+        };
+        const { resources: allPipelines } = await container.items.query(query).fetchAll();
+        const existingNames = allPipelines.map(p => p.name);
+
+        const getCloneName = (baseName, names) => {
+            let base = `${baseName} Copy`;
+            let count = 1;
+            let newName = `${base}(${count})`;
+
+            while (names.includes(newName)) {
+                count++;
+                newName = `${base}(${count})`;
+            }
+            return newName;
+        };
+
+        const newName = getCloneName(originalName, existingNames);
+
         const clonedItem = {
             ...item,
             id: `pipeline-${Date.now()}-${uuidv4()}`,
+            name: newName,
             created_at: new Date().toISOString(),
             last_updated: new Date().toISOString()
         };
