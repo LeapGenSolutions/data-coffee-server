@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getWorkspaces, getWorkspacesByOwner } = require("../services/workspaceService");
+const { getWorkspaces, getWorkspacesByOwner, createWorkspacesByOwner } = require("../services/workspaceService");
 // GET /api/workspaces/owner/:ownerEmail
 router.get("/owner/:ownerEmail", async (req, res) => {
   try {
@@ -19,6 +19,18 @@ router.get("/", async (req, res) => {
     res.json(workspaces);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch workspaces" });
+  }
+});
+
+// POST /api/workspaces/:ownerEmail
+router.post("/:ownerEmail", async (req, res) => {
+  try {
+    const { ownerEmail } = req.params;
+    const data = req.body || null;
+    const items = await createWorkspacesByOwner(ownerEmail, data);
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
