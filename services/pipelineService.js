@@ -98,9 +98,13 @@ async function updatePipeline(id, userID, newData) {
             customPrompt: newData?.customPrompt || item.customPrompt,
             enable_surround_AI: newData?.enable_surround_AI || item.enable_surround_AI,
             status: newData?.status || item.status,
+            ...(newData.destinationType !== undefined && { destinationType: newData.destinationType }),
+            ...(newData.connectionString !== undefined && { connectionString: newData.connectionString }),
+            ...(newData.ediSource !== undefined && { ediSource: newData.ediSource }),
+            ...(newData.includeEdiData !== undefined && { includeEdiData: newData.includeEdiData }),
+            ...(newData.preserveOriginalData !== undefined && { preserveOriginalData: newData.preserveOriginalData }),
             last_updated: new Date().toISOString(),
-            created_at: item.created_at,
-            ...newData
+            created_at: item.created_at
         }
         await container.item(id, userID).replace(updatedItem);
         return updatedItem;
@@ -123,15 +127,20 @@ async function createPipeline(userId, data) {
         destination: data.destination,
         destinationDatabaseId: data.destinationDatabaseId,
         technique: data.technique,
-        workspaceName: data.workspaceName,
-        workspaceId: data.workspaceID,
         processing_agent: data.processingAgent,
+        customPrompt: data.customPrompt,
         schedule: data.schedule,
         notifications: data.notifications,
         auto_close: data.auto_close,
-        customPrompt: data.customPrompt,
         enable_surround_AI: data.enable_surround_AI,
         status: data.status || "new",
+        workspaceId: data.workspaceID,
+        workspaceName: data.workspaceName,
+        ...(data.destinationType !== undefined && { destinationType: data.destinationType }),
+        ...(data.connectionString !== undefined && { connectionString: data.connectionString }),
+        ...(data.ediSource !== undefined && { ediSource: data.ediSource }),
+        ...(data.includeEdiData !== undefined && { includeEdiData: data.includeEdiData }),
+        ...(data.preserveOriginalData !== undefined && { preserveOriginalData: data.preserveOriginalData }),
         last_updated: new Date().toISOString(),
         created_at: new Date().toISOString()
     };
