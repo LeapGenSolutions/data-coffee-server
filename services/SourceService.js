@@ -33,9 +33,8 @@ async function fetchSourcesByUserId(userID, workspaceID) {
                 c._etag,
                 c._attachments,
                 c._ts
-            FROM c WHERE c.user_id = @userID and c.workspaceId = @workspaceId`,
+            FROM c WHERE c.workspaceId = @workspaceId`,
       parameters: [
-        { name: "@userID", value: userID },
         { name: "@workspaceId", value: workspaceID }
       ]
     };

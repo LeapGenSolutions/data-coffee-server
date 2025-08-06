@@ -26,14 +26,14 @@ async function getWorkspacesByOwner(ownerEmail) {
   const container = database.container("data-coffee-workspaces");
   try {
     const querySpec = {
-      query: "SELECT * FROM c WHERE c.owner = @ownerEmail",
+      query: "SELECT * FROM c WHERE c.owner = @ownerEmail OR ARRAY_CONTAINS(c.subscribers, @ownerEmail, true)",
       parameters: [{ name: "@ownerEmail", value: ownerEmail }]
     };
     const { resources } = await container.items.query(querySpec).fetchAll();
     return resources;
   } catch (error) {
     console.error(error);
-    throw new Error("Failed to fetch workspaces by owner");
+    throw new Error("Failed to fetch workspaces by owner or subscriber");
   }
 }
 
