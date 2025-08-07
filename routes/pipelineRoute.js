@@ -35,8 +35,8 @@ router.get("/:email" , async (req, res) => {
 
 router.get("/:email/workspace/:workspaceId", async (req, res) => {
     try {
-        const { email, workspaceId } = req.params;
-        const items = await fetchPipelineByWorkspaceId(email, workspaceId);
+        const { workspaceId } = req.params;
+        const items = await fetchPipelineByWorkspaceId(workspaceId);
         res.json(items);
     }catch (err) {
         res.status(500).json({ error: "Failed to fetch pipelines for workspace" });

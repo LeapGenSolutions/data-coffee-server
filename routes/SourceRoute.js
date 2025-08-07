@@ -9,7 +9,7 @@ router.get("/:email/workspace/:workspaceID", async (req, res) => {
     if (!workspaceID) {
       return res.status(400).json({ error: "workspaceID is mandatory" });
     }
-    const items = await fetchSourcesByUserId(email, workspaceID);
+    const items = await fetchSourcesByUserId(workspaceID);
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
