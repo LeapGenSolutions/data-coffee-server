@@ -66,9 +66,8 @@ async function fetchPipelineByWorkspaceId(userID, workspaceId) {
 
     try {
         const querySpec = {
-            query: "Select * FROM c WHERE c.user_id = @userID and c.workspaceId = @workspaceId",
+            query: "Select * FROM c WHERE c.workspaceId = @workspaceId",
             parameters: [
-                { name: "@userID", value: userID },
                 { name: "@workspaceId", value: workspaceId }
             ]
         };
