@@ -60,7 +60,7 @@ async function fetchPromptHistoryById(pipeline_id) {
     }
 }
 
-async function fetchPipelineByWorkspaceId(userID, workspaceId) {
+async function fetchPipelineByWorkspaceId(workspaceId) {
     const datebase = client.database(process.env.COSMOS_PIPELINE);
     const container = datebase.container("data-coffee-pipeline-config");
 
@@ -112,6 +112,10 @@ async function updatePipeline(id, userID, newData) {
             notifications: newData?.notifications || item.notifications,
             auto_close: newData?.auto_close || item.auto_close,
             customPrompt: newData?.customPrompt || item.customPrompt,
+            data_selection_mode: newData?.dataSelectionMode || item.data_selection_mode,
+            selected_tables: newData?.selectedTables || item.selected_tables,
+            selected_columns: newData?.selectedColumns || item.selected_columns,
+            custom_query: newData?.customQuery || item.custom_query,
             enable_surround_AI: newData?.enable_surround_AI || item.enable_surround_AI,
             status: newData?.status || item.status,
             ...(newData.destinationType !== undefined && { destinationType: newData.destinationType }),
@@ -145,6 +149,10 @@ async function createPipeline(userId, data) {
         technique: data.technique,
         processing_agent: data.processingAgent,
         customPrompt: data.customPrompt,
+        data_selection_mode: data.data_selection_mode || "all",
+        selected_tables: data.selected_tables || [],
+        selected_columns: data.selected_columns || [],
+        custom_query: data.customQuery || "",
         schedule: data.schedule,
         notifications: data.notifications,
         auto_close: data.auto_close,
