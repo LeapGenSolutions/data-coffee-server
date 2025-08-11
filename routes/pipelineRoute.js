@@ -10,7 +10,9 @@ const {
     fetchPipelineByWorkspaceId,
     runPipelineJob,
     fetchAllPipelineHistoryByUserId,
-    fetchPromptHistoryById
+    fetchPromptHistoryById,
+    deleteRunHistory,
+    fetchRunHistoryById
 } = require('../services/pipelineService');
 
 router.get("/run-history/:email", async (req, res) => {
@@ -64,7 +66,16 @@ router.get("/:email/:id" , async (req, res) => {
     }
 });
 
-
+// for feching the details of the specific pipeline run history
+router.get("/:email/run-history/:id", async (req, res) => {
+    try {
+        const { email, id } = req.params;
+        const item = await fetchRunHistoryById(id, email);
+        res.json(item);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch run history" });
+    }
+});
 
 router.patch("/:email/:id" , async (req, res) => {
     try {
@@ -117,6 +128,16 @@ router.delete("/:email/:id" , async (req, res) => {
         res.json(item);
     }catch(err) {
         res.status(500).json({ error: "Failed to delete pipeline" });
+    }
+});
+
+router.delete("/:email/run-history/:id", async (req, res) => {
+    try {
+        const { email, id } = req.params;
+        const item = await deleteRunHistory(id, email);
+        res.json(item);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to delete run history" });
     }
 });
 
