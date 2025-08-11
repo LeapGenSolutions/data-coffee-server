@@ -301,6 +301,30 @@ async function fetchAllPipelineHistoryByUserId(userID) {
     }
 }
 
+const deleteRunHistory = async (id, userId) => {
+    const database = client.database(process.env.COSMOS_PIPELINE);
+    const container = database.container("data-coffee-pipeline-history");
+    try {
+        await container.item(id, userId).delete();
+        return { message: "Pipeline history deleted successfully" };
+    } catch (error) {
+        console.error("Delete pipeline history error:", error.message);
+        throw new Error("Failed to delete pipeline history");
+    }
+}
+
+const fetchRunHistoryById = async (id, userId) => {
+    const database = client.database(process.env.COSMOS_PIPELINE);
+    const container = database.container("data-coffee-pipeline-history");
+    try {
+        const item = await container.item(id, userId).read();
+        return item.resource;
+    } catch (error) {
+        console.error("Fetch pipeline history error:", error.message);
+        throw new Error("Failed to fetch pipeline history");
+    }
+}
+
 module.exports = {
     fetchAllPipelineByUserId,
     fetchPipelineById,
@@ -311,5 +335,7 @@ module.exports = {
     deletePipeline,
     runPipelineJob,
     fetchAllPipelineHistoryByUserId,
-    fetchPromptHistoryById
+    fetchPromptHistoryById,
+    deleteRunHistory,
+    fetchRunHistoryById
 }
