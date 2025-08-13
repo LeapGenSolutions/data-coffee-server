@@ -20,10 +20,6 @@ async function fetchSourcesByUserId(userID, workspaceID) {
                 c.workspaceId,
                 c.workspaceName,
                 c.configuration,
-                c.data_selection_mode,
-                c.selected_tables,
-                c.selected_columns,
-                c.custom_query,
                 c.status,
                 c.last_sync,
                 c.created_at,
@@ -33,8 +29,9 @@ async function fetchSourcesByUserId(userID, workspaceID) {
                 c._etag,
                 c._attachments,
                 c._ts
-            FROM c WHERE c.workspaceId = @workspaceId`,
+            FROM c WHERE c.user_id = @userID and c.workspaceId = @workspaceId`,
       parameters: [
+        { name: "@userID", value: userID },
         { name: "@workspaceId", value: workspaceID }
       ]
     };
@@ -84,10 +81,6 @@ async function patchSources(id, partitionIdentifier, newData) {
         ...newData.configuration,
         step: undefined
       } : item.configuration,
-      data_selection_mode: newData?.dataSelectionMode || item.data_selection_mode,
-      selected_tables: newData?.selectedTables || item.selected_tables,
-      selected_columns: newData?.selectedColumns || item.selected_columns,
-      custom_query: newData?.customQuery || item.custom_query,
       status: newData?.status || item.status,
       last_sync: newData?.lastSync || new Date().toISOString(),
       created_at: item.created_at,
@@ -114,10 +107,6 @@ async function createSources(userID, data) {
     configuration: {
       ...data.configuration
     },
-    data_selection_mode: data.dataSelectionMode || "all",
-    selected_tables: data.selectedTables || [],
-    selected_columns: data.selectedColumns || [],
-    custom_query: data.customQuery || "",
     status: data.status || "Active",
     last_sync: data.lastSync || new Date().toISOString(),
     created_at: new Date().toISOString(),
