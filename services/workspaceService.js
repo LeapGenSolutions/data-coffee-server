@@ -58,4 +58,47 @@ async function createWorkspacesByOwner(ownerEmail, data) {
     }
 }
 
-module.exports = { getWorkspaces, getWorkspacesByOwner, createWorkspacesByOwner };
+async function deleteWorkspace(id, workspaceName) {
+  const database = client.database("data-coffee-configurations");
+  const container = database.container("data-coffee-workspaces");
+  try {
+    await container.item(id, workspaceName).delete();
+    return { success: true, message: "Workspace deleted successfully" };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to delete Workspace.");
+  }
+}
+
+async function renameWorkspace(currentWorkspaceName, id, data) {
+  const database = client.database("data-coffee-configurations");
+  const container = database.container("data-coffee-workspaces");
+
+  try {
+    const { resource: existingDoc } = await container.item(id, currentWorkspaceName).read();
+    if (!existingDoc) throw new Error("Workspace not found");
+
+    if (data.workspaceName && data.workspaceName !== existingDoc.workspaceName) {
+      const newDoc = { ...existingDoc, workspaceName: data.workspaceName };
+      await container.items.create(newDoc, { partitionKey: data.workspaceName });
+      await container.item(id, existingDoc.workspaceName).delete();
+      return newDoc;
+    }
+    const patchOps = Object.entries(data).map(([key, value]) => ({
+      op: "add",
+      path: `/${key}`,
+      value
+    }));
+
+    const { resource } = await container
+      .item(id, existingDoc.workspaceName)
+      .patch(patchOps);
+
+    return resource;
+
+  } catch (err) {
+    throw new Error(`Failed to update workspace: ${err.message}`);
+  }
+}
+
+module.exports = { getWorkspaces, getWorkspacesByOwner, createWorkspacesByOwner, deleteWorkspace, renameWorkspace };

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getWorkspaces, getWorkspacesByOwner, createWorkspacesByOwner } = require("../services/workspaceService");
+const { getWorkspaces, getWorkspacesByOwner, createWorkspacesByOwner, deleteWorkspace, renameWorkspace } = require("../services/workspaceService");
 // GET /api/workspaces/owner/:ownerEmail
 router.get("/owner/:ownerEmail", async (req, res) => {
   try {
@@ -31,6 +31,31 @@ router.post("/:ownerEmail", async (req, res) => {
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/:workspaceName/:id", async (req, res) => {
+  try {
+    const workspaceName = decodeURIComponent(req.params.workspaceName);
+    const { id } = req.params;
+    const items = await deleteWorkspace(id, workspaceName);
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.patch("/:workspaceName/:id", async (req, res) => {
+  try {
+    const workspaceName = decodeURIComponent(req.params.workspaceName).trim();
+    const { id } = req.params;
+    const newData = req.body;
+
+    const updated = await renameWorkspace(workspaceName, id, newData);
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 });
 
